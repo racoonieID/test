@@ -13,7 +13,7 @@ icon_image = Image.open('favicon.png')
 
 st.set_page_config(
     page_title="Segmentasi Citra",
-    page_icon=icon_image,
+    page_icon="favicon.png",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
