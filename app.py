@@ -9,8 +9,8 @@ from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, concatenate
 from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras import Model
 
-icon_image = Image.open('favicon.png')
-
+# Konfigurasi Halaman Web
+# Untuk mengatur Judul Web, Icon web, jenis Layout, etc
 st.set_page_config(
     page_title="Segmentasi Citra",
     page_icon="favicon.png",
@@ -23,12 +23,11 @@ st.set_page_config(
     }
 )
 
-
-st.title('Segmentasi Citra Optic Disk')
-
-#########################################################################
-####################### Model Arsitektur ################################
 def FCDUG(input_size=(256,256,1)):
+    """
+    Arsitektur Model FCDUG
+    """
+
     inputs = Input(input_size)
     
     #encoder
@@ -103,26 +102,35 @@ def FCDUG(input_size=(256,256,1)):
     
     return Model(inputs=[inputs], outputs=[o])
 
-#########################################################################
-
 @st.cache_resource
 def load_models():
+    """
+    @st.cache_resource decorator digunakan untuk menyimpan resource model.
+
+    Fungsi load_models() akan membuat model FCDUG dan menerapkan weights dari file .h5 
+
+    """
     model = FCDUG(input_size=(64,64,1))
     model.load_weights("Model-fcdug.h5")
 
     return model
 
-
+# global variable model yang bisa diakses oleh fungsi/method
 model = load_models()
 
 def preprocess_image(image_predict):
+    """
+    Fungsi preprocess_image adalah untuk mempersiapkan input sebelum dimasukkan kedalam model.
+
+    """
+
+    # Grayscaling
     image_np = np.mean(image_predict, axis=-1, keepdims=True)
-
-
-    # assuming your model expects input shape (None, 64, 64, 1)
+    # Resize ukuran gambar ke 64 x 64 
     resized_image = cv2.resize(image_np, (64, 64))
+    # Normalisasi Gambar
     normalized_image = resized_image.astype('float32') / 255.0
-
+    # Menambah dimensi input untuk menyesuaikan inputan deep learning
     input_image = np.expand_dims(normalized_image, axis=-1)  
     input_image = np.expand_dims(input_image, axis=0)
 
@@ -130,6 +138,11 @@ def preprocess_image(image_predict):
 
 @st.cache_data()
 def predict(image_predict):
+    """
+    @st.cache_data decorator berfungsi untuk caching / menyimpan data prediksi sementara
+
+    Fungsi predict digunakan untuk melakukan prediksi data
+    """
     image = preprocess_image(image_predict)
     prediction = model.predict(image)
     
@@ -137,28 +150,50 @@ def predict(image_predict):
     
 
 def main():
+    """
+    Kode Utama yang menampilkan UI halaman web
+    seperti Judul teks, Input untuk Memilih Gambar, dan Output Gambar
+    """
+    # Menampilkan Judul teks pada Konten halaman web
+    st.title('Segmentasi Citra Optic Disk')
+
+    # Menampilkan Form untuk Mengupload File
     uploaded_file = st.file_uploader("Choose image file")
+
+    # Seleksi kondisi untuk mengecek apakah user telah mengupload sebuah file
     if uploaded_file is not None:
+        # Pengecekan apakah file yang di upload berformat jpg atau png 
         if uploaded_file.name.endswith('jpg') or uploaded_file.name.endswith('png'):
-            # uploaded_image = Image.open(uploaded_file)
+            
+            # Membaca file kedalam bentuk Bytes
             file_contents = uploaded_file.read()
+            # Membuka objek gambar dari bytes
             image_predict = Image.open(BytesIO(file_contents))
+            # Konversi gambar kedalam bentuk array
             image_predict  = np.asarray(image_predict)
 
+            # Prediksi
             output = predict(image_predict)
 
+            # Tampilkan Input Gambar
             st.write("Input")
-            # st.image(uploaded_file)
             st.image(image_predict)
 
+            # Tampilkan Prediksi Segmentasi Gambar
             st.write("Prediction")
             st.image(output)
 
 
         else:
+            # Jika file yang di upload bukan gambar, tampilkan pesan warning berikut
             st.warning("File is not an image")
 
+
 if __name__ == '__main__':
+    """
+    Kode yang berada dibawah ini akan dijalankan pertama kali
+    ketika app.py dijalankan
+    """
     
     main()
 
