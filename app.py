@@ -139,7 +139,6 @@ if uploaded_file is not None:
         st.image(output)
 
 
-
     else:
         st.warning("File is not an image")
 
