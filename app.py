@@ -8,7 +8,7 @@ from PIL import Image, ImageOps
 import io
 
 from tensorflow.keras.layers import Activation, Dropout, Conv2DTranspose, Add
-from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPooling2D, AveragePooling2D, concatenate
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, concatenate
 from tensorflow.keras.layers import BatchNormalization
 
 from tensorflow.keras import Model
@@ -113,38 +113,50 @@ model = FCDUG(input_size=(64,64,1))
 model.load_weights("Model-fcdug.h5")
 
 
-uploaded_file = st.file_uploader("Choose image file")
-if uploaded_file is not None:
-    # To read file as bytes:
-    filename = uploaded_file.name.lower()
-    if uploaded_file.name.endswith('jpg') or uploaded_file.name.endswith('png'):
-        # uploaded_image = Image.open(uploaded_file)
-        file_contents = uploaded_file.read()
-        image_predict = Image.open(io.BytesIO(file_contents))
-
-        image_np  = np.asarray(image_predict)
-        image_np = np.mean(image_np, axis=-1, keepdims=True)
+def preprocess_image(image_predict):
+    image_np  = np.asarray(image_predict)
+    image_np = np.mean(image_np, axis=-1, keepdims=True)
 
 
-        # assuming your model expects input shape (None, 64, 64, 1)
-        resized_image = cv2.resize(image_np, (64, 64))
-        normalized_image = resized_image.astype('float32') / 255.0
+    # assuming your model expects input shape (None, 64, 64, 1)
+    resized_image = cv2.resize(image_np, (64, 64))
+    normalized_image = resized_image.astype('float32') / 255.0
 
-        input_image = np.expand_dims(normalized_image, axis=-1)  # add a new dimension for grayscale channel
-        input_image = np.expand_dims(input_image, axis=0)
+    input_image = np.expand_dims(normalized_image, axis=-1)  
+    input_image = np.expand_dims(input_image, axis=0)
 
-        output = model.predict(input_image)
+    return input_image
 
-        st.write("Input")
-        # st.image(uploaded_file)
-        st.image(image_predict)
+@st.cache(allow_output_mutation=True)
+def predict(image_predict):
+    image = preprocess_image(image_predict)
+    prediction = model.predict(image)
+    
+    return prediction
+    
 
-        st.write("Prediction")
-        st.image(output)
+def main():
+    uploaded_file = st.file_uploader("Choose image file")
+    if uploaded_file is not None:
+        if uploaded_file.name.endswith('jpg') or uploaded_file.name.endswith('png'):
+            # uploaded_image = Image.open(uploaded_file)
+            file_contents = uploaded_file.read()
+            image_predict = Image.open(io.BytesIO(file_contents))
+            output = predict(image_predict)
+
+            st.write("Input")
+            # st.image(uploaded_file)
+            st.image(image_predict)
+
+            st.write("Prediction")
+            st.image(output)
 
 
-    else:
-        st.warning("File is not an image")
+        else:
+            st.warning("File is not an image")
+
+if __name__ == '__main__':
+    main()
 
 
 
