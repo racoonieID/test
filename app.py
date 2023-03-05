@@ -127,7 +127,7 @@ def preprocess_image(image_predict):
 
     return input_image
 
-@st.cache_data(allow_output_mutation=True)
+@st.cache_data
 def predict(image_predict):
     image = preprocess_image(image_predict)
     prediction = model.predict(image)
