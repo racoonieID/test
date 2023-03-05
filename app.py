@@ -1,16 +1,12 @@
 import streamlit as st
-import pandas as pd
-import tensorflow as tf
-import time
 import cv2
 import numpy as np
-from PIL import Image, ImageOps
-import io
+from PIL import Image
+from io import BytesIO
 
 from tensorflow.keras.layers import Activation, Dropout, Conv2DTranspose, Add
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, concatenate
 from tensorflow.keras.layers import BatchNormalization
-
 from tensorflow.keras import Model
 
 icon_image = Image.open('favicon.png')
@@ -21,9 +17,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Get Help': 'https://www.extremelycoolapp.com/help',
-        'Report a bug': "https://www.extremelycoolapp.com/bug",
-        'About': "# This is a header. This is an *extremely* cool app!"
+        'Get Help': '#',
+        'Report a bug': "mailto:riyadfebrian@gmail.com",
+        'About': "Simple ML Apps"
     }
 )
 
@@ -146,9 +142,9 @@ def main():
         if uploaded_file.name.endswith('jpg') or uploaded_file.name.endswith('png'):
             # uploaded_image = Image.open(uploaded_file)
             file_contents = uploaded_file.read()
-            image_predict = Image.open(io.BytesIO(file_contents))
+            image_predict = Image.open(BytesIO(file_contents))
             image_predict  = np.asarray(image_predict)
-            
+
             output = predict(image_predict)
 
             st.write("Input")
