@@ -17,7 +17,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Get Help': '#',
+        'Get Help': 'https://google.com/',
         'Report a bug': "mailto:riyadfebrian@gmail.com",
         'About': "Simple ML Apps"
     }
