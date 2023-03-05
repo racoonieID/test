@@ -190,10 +190,7 @@ def main():
 
 
 if __name__ == '__main__':
-    """
-    Kode yang berada dibawah ini akan dijalankan pertama kali
-    ketika app.py dijalankan
-    """
+    # Kode yang berada dibawah ini akan dijalankan pertama kali ketika app.py dijalankan
     
     main()
 
