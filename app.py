@@ -109,13 +109,18 @@ def FCDUG(input_size=(256,256,1)):
 
 #########################################################################
 
-model = FCDUG(input_size=(64,64,1))
-model.load_weights("Model-fcdug.h5")
+@st.cache_resource
+def load_models():
+    model = FCDUG(input_size=(64,64,1))
+    model.load_weights("Model-fcdug.h5")
 
+    return model
+
+
+model = load_models()
 
 def preprocess_image(image_predict):
-    image_np  = np.asarray(image_predict)
-    image_np = np.mean(image_np, axis=-1, keepdims=True)
+    image_np = np.mean(image_predict, axis=-1, keepdims=True)
 
 
     # assuming your model expects input shape (None, 64, 64, 1)
@@ -142,6 +147,8 @@ def main():
             # uploaded_image = Image.open(uploaded_file)
             file_contents = uploaded_file.read()
             image_predict = Image.open(io.BytesIO(file_contents))
+            image_predict  = np.asarray(image_predict)
+            
             output = predict(image_predict)
 
             st.write("Input")
@@ -156,6 +163,7 @@ def main():
             st.warning("File is not an image")
 
 if __name__ == '__main__':
+    
     main()
 
 
